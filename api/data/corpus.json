@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Azure Network Security Groups",
+    "source": "cloud-notes",
+    "text": "A Network Security Group, or NSG, contains access control rules that allow or deny inbound and outbound network traffic to Azure resources. NSGs can be associated with subnets and network interfaces."
+  },
+  {
+    "title": "Terraform Infrastructure as Code",
+    "source": "devops-notes",
+    "text": "Terraform is an infrastructure as code tool. Configuration files describe desired infrastructure resources and Terraform calculates a plan before applying changes."
+  },
+  {
+    "title": "Kubernetes Deployments",
+    "source": "kubernetes-notes",
+    "text": "A Kubernetes Deployment manages a set of replicated Pods and provides declarative updates. Deployments can perform rolling updates and maintain the desired replica count."
+  },
+  {
+    "title": "Docker Containers",
+    "source": "container-notes",
+    "text": "A Docker container is an isolated process created from an image. Containers package an application and its runtime dependencies and can be run consistently across environments."
+  },
+  {
+    "title": "RAG Retrieval",
+    "source": "ai-notes",
+    "text": "Retrieval-Augmented Generation retrieves relevant documents from an external knowledge source and supplies those documents to a language model as context before answer generation."
+  }
+]

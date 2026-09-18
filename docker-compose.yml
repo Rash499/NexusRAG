@@ -1,0 +1,61 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: rag-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    container_name: rag-api
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_COLLECTION: rag_documents
+      EMBEDDING_URL: http://embedding:8001
+      LLM_BASE_URL: http://ollama:11434
+      LLM_MODEL: llama3.2:3b
+      TOP_K: "5"
+      MIN_SIMILARITY: "0.25"
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - qdrant
+      - embedding
+      - ollama
+
+  embedding:
+    build: ./embedding-service
+    container_name: rag-embedding
+    environment:
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+    ports:
+      - "8001:8001"
+    volumes:
+      - embedding-cache:/root/.cache
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.5
+    container_name: rag-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: rag-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+volumes:
+  qdrant-data:
+  ollama-data:
+  embedding-cache:

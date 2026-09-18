@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What does an NSG control?",
+    "expected_sources": ["Azure Network Security Groups"]
+  },
+  {
+    "question": "What is Terraform used for?",
+    "expected_sources": ["Terraform Infrastructure as Code"]
+  },
+  {
+    "question": "What does a Kubernetes Deployment manage?",
+    "expected_sources": ["Kubernetes Deployments"]
+  },
+  {
+    "question": "What is a Docker container?",
+    "expected_sources": ["Docker Containers"]
+  },
+  {
+    "question": "What is retrieval augmented generation?",
+    "expected_sources": ["RAG Retrieval"]
+  }
+]
