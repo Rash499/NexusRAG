@@ -1,0 +1,16 @@
+.result { margin-top: 54px; }
+.result-heading, .sources-heading { display: flex; justify-content: space-between; gap: 20px; align-items: flex-end; }
+.confidence-label, .sources-heading > span { color: var(--dim); font-size: .78rem; }
+.answer, article { padding: 18px; border: 1px solid var(--line); border-radius: 3px; background: var(--panel); }
+.answer { position: relative; margin-top: 20px; padding: 28px 32px 28px 64px; white-space: pre-wrap; line-height: 1.7; font-size: 1.05rem; }
+.quote-mark { position: absolute; left: 24px; top: 17px; color: var(--acid); font: 3.5rem Georgia, serif; line-height: 1; }
+.metrics { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 44px; }
+.metrics span { padding: 7px 10px; border-left: 2px solid var(--coral); background: #1b2722; color: var(--muted); font-size: .85rem; }
+.metrics b { display: block; color: var(--dim); font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 3px; }
+.sources-heading { margin-bottom: 20px; }
+.sources { display: grid; gap: 12px; }
+.source-header { display: flex; justify-content: space-between; gap: 15px; }
+.source-title { display: flex; align-items: center; gap: 12px; }
+.source-rank { color: var(--coral); font-size: .75rem; }
+.score { color: var(--acid); font-family: monospace; }
+article p { color: var(--muted); line-height: 1.6; margin-bottom: 0; }

@@ -1,0 +1,24 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand-lockup { display: flex; gap: 18px; align-items: flex-start; }
+.signal-mark { width: 34px; height: 34px; border: 1px solid var(--acid); display: grid; place-items: center; transform: rotate(45deg); margin-top: 8px; }
+.signal-mark span { width: 12px; height: 12px; background: var(--acid); display: block; }
+.header-actions { display: flex; align-items: center; gap: 18px; }
+.status { color: var(--muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--acid); margin-right: 7px; }
+.status-error .status-dot { background: var(--coral); }
+.status-working .status-dot { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+.secondary-button { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.secondary-button:hover { border-color: var(--acid); color: var(--acid); }
+.eyebrow { letter-spacing: .2em; font-size: .75rem; font-weight: 700; color: var(--acid); margin: 0 0 14px; }
+.subtitle { color: var(--muted); max-width: 570px; line-height: 1.6; margin: 18px 0 0; }
