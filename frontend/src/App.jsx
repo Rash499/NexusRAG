@@ -1,4 +1,7 @@
 import { useState } from "react";
+import Header from "./components/Header";
+import QueryPanel from "./components/QueryPanel";
+import ResponsePanel from "./components/ResponsePanel";
 
 const API = import.meta.env.VITE_API_URL || "";
 
@@ -8,6 +11,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [ingesting, setIngesting] = useState(false);
   const [message, setMessage] = useState("");
+  const [requestState, setRequestState] = useState("ready");
 
   async function ingest() {
     setIngesting(true);
@@ -29,6 +33,7 @@ export default function App() {
     if (!question.trim()) return;
 
     setLoading(true);
+    setRequestState("working");
     setAnswer(null);
     setMessage("");
 
@@ -42,69 +47,31 @@ export default function App() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Query failed");
       setAnswer(data);
+      setRequestState("complete");
     } catch (error) {
       setMessage(error.message);
+      setRequestState("error");
     } finally {
       setLoading(false);
     }
   }
 
+  function clearQuestion() {
+    setQuestion("");
+    setAnswer(null);
+    setMessage("");
+    setRequestState("ready");
+  }
+
   return (
     <main className="container">
-      <header>
-        <div>
-          <p className="eyebrow">DEVOPS-FIRST AI PLATFORM</p>
-          <h1>Production RAG</h1>
-          <p className="subtitle">
-            Ask questions against your indexed knowledge base with retrieval,
-            source citations, and operational metrics.
-          </p>
-        </div>
-        <button onClick={ingest} disabled={ingesting}>
-          {ingesting ? "Indexing..." : "Index Corpus"}
-        </button>
-      </header>
+      <Header requestState={requestState} ingest={ingest} ingesting={ingesting} />
 
-      {message && <div className="notice">{message}</div>}
+      {message && <div className="notice" role="status">{message}</div>}
 
-      <form onSubmit={ask} className="search">
-        <textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask something about the knowledge base..."
-          rows="4"
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Generating..." : "Ask"}
-        </button>
-      </form>
+      <QueryPanel question={question} loading={loading} setQuestion={setQuestion} ask={ask} clearQuestion={clearQuestion} />
 
-      {answer && (
-        <section className="result">
-          <h2>Answer</h2>
-          <div className="answer">{answer.answer}</div>
-
-          <div className="metrics">
-            <span>Retrieval: {answer.retrieval_latency_ms} ms</span>
-            <span>LLM: {answer.llm_latency_ms} ms</span>
-            <span>Total: {answer.total_latency_ms} ms</span>
-            <span>Similarity: {answer.average_similarity}</span>
-          </div>
-
-          <h2>Retrieved Sources</h2>
-          <div className="sources">
-            {answer.sources.map((source) => (
-              <article key={source.id}>
-                <div className="source-header">
-                  <strong>{source.title}</strong>
-                  <span>{source.score.toFixed(3)}</span>
-                </div>
-                <p>{source.text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      {answer && <ResponsePanel answer={answer} />}
     </main>
   );
 }
