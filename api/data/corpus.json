@@ -1,27 +1,152 @@
 [
   {
-    "title": "Azure Network Security Groups",
-    "source": "cloud-notes",
-    "text": "A Network Security Group, or NSG, contains access control rules that allow or deny inbound and outbound network traffic to Azure resources. NSGs can be associated with subnets and network interfaces."
+    "id": "f8b9ee166dcaed4d",
+    "title": "azure-devops-guide - chunk 1",
+    "source": "azure-devops-guide.md",
+    "text": "# Azure DevOps Infrastructure Deployment Guide ## Overview This document describes a sample infrastructure deployment workflow using Azure DevOps, Terraform, and Microsoft Azure. The workflow demonstrates how Infrastructure as Code (IaC) can be combined with a Git-based CI/CD approach to provision and manage cloud infrastructure across multiple environments. The example uses separate development and staging environments. Terraform manages the infrastructure, while Azure DevOps Pipelines automates validation, planning, deployment, and controlled destruction. --- ## Architecture The deployment architecture contains the following components: * Microsoft Azure subscription * Azure Resource Groups * Azure Storage Account for Terraform remote state * Azure Key Vault * Azure DevOps project * Azure DevOps self-hosted agent * Terraform * Git repository * Development environment * Staging environm"
   },
   {
-    "title": "Terraform Infrastructure as Code",
-    "source": "devops-notes",
-    "text": "Terraform is an infrastructure as code tool. Configuration files describe desired infrastructure resources and Terraform calculates a plan before applying changes."
+    "id": "fd3a34be4a91b444",
+    "title": "azure-devops-guide - chunk 2",
+    "source": "azure-devops-guide.md",
+    "text": "e DevOps self-hosted agent * Terraform * Git repository * Development environment * Staging environment The general workflow is: ```text Developer | v Git Repository | v Azure DevOps Pipeline | +----> Terraform Validate | +----> Terraform Plan | v Terraform Apply | v Microsoft Azure ``` --- ## Terraform Remote State Terraform requires a state file to track resources that it manages. Instead of storing the state file locally, the project uses Azure Storage as a remote backend. The development environment uses a storage account named: `tfdevbackend2026rash` The staging environment uses: `tfstagebackend2026rash` Both environments use a blob container named: `tfstate` Example state files include: ```text dev.tfstate stage.tfstate ``` Using remote state provides centralized state management and makes it easier for CI/CD pipelines to work with the same infrastructure state. --- ## Azure DevOps"
   },
   {
-    "title": "Kubernetes Deployments",
-    "source": "kubernetes-notes",
-    "text": "A Kubernetes Deployment manages a set of replicated Pods and provides declarative updates. Deployments can perform rolling updates and maintain the desired replica count."
+    "id": "c12ea6720362b49c",
+    "title": "azure-devops-guide - chunk 3",
+    "source": "azure-devops-guide.md",
+    "text": " makes it easier for CI/CD pipelines to work with the same infrastructure state. --- ## Azure DevOps Agent The deployment pipeline runs Terraform commands using an Azure DevOps self-hosted agent. The agent is configured in a pool named: `agentpool_1` The self-hosted agent provides a controlled execution environment for Terraform and other deployment tools. Before running infrastructure changes, the agent must have the required tools installed and authenticated access to Azure. --- ## Authentication The pipeline authenticates with Azure using a service principal. The service principal is granted the Contributor role at the required Azure subscription scope. The pipeline should not store credentials directly inside the Git repository. Sensitive values such as client secrets should be stored using secure mechanisms such as: * Azure DevOps secret variables * Variable groups * Azure Key Vault"
   },
   {
-    "title": "Docker Containers",
-    "source": "container-notes",
-    "text": "A Docker container is an isolated process created from an image. Containers package an application and its runtime dependencies and can be run consistently across environments."
+    "id": "84460fd8e5590d8d",
+    "title": "azure-devops-guide - chunk 4",
+    "source": "azure-devops-guide.md",
+    "text": "using secure mechanisms such as: * Azure DevOps secret variables * Variable groups * Azure Key Vault * Federated identity credentials Secrets should never be committed to source control. --- ## Infrastructure as Code Terraform is used to define Azure infrastructure declaratively. A simplified Terraform configuration may contain resources such as: ```text Resource Group | +---- Virtual Network | | | +---- Subnet | +---- Network Security Group | +---- Virtual Machine ``` Terraform allows the infrastructure configuration to be version-controlled alongside application and pipeline code. This makes infrastructure changes easier to review, reproduce, and audit. --- ## Environment Separation The project separates infrastructure into development and staging environments. ### Development The development environment is used for testing infrastructure changes before they are promoted. Typical resou"
   },
   {
-    "title": "RAG Retrieval",
-    "source": "ai-notes",
-    "text": "Retrieval-Augmented Generation retrieves relevant documents from an external knowledge source and supplies those documents to a language model as context before answer generation."
+    "id": "6838b4f0c28af5ae",
+    "title": "azure-devops-guide - chunk 5",
+    "source": "azure-devops-guide.md",
+    "text": "pment environment is used for testing infrastructure changes before they are promoted. Typical resources include: * Development resource groups * Development virtual networks * Development compute resources * Development monitoring resources The Terraform state is stored in: `dev.tfstate` ### Staging The staging environment represents an environment closer to production. It is used to validate infrastructure changes before production deployment. The Terraform state is stored in: `stage.tfstate` Separating state between environments prevents Terraform operations in one environment from accidentally modifying resources belonging to another environment. --- ## CI/CD Pipeline The Azure DevOps pipeline follows a Git-based CI/CD approach. A typical pipeline contains the following stages: ```text Code Commit | v Terraform Init | v Terraform Validate | v Terraform Plan | v Approval | v Terraform"
+  },
+  {
+    "id": "c503c97fff75be0a",
+    "title": "azure-devops-guide - chunk 6",
+    "source": "azure-devops-guide.md",
+    "text": " Code Commit | v Terraform Init | v Terraform Validate | v Terraform Plan | v Approval | v Terraform Apply ``` The `terraform plan` stage allows the team to review the infrastructure changes before they are applied. The production or staging deployment can include an approval gate before `terraform apply`. --- ## Terraform Modules Reusable Terraform modules can be used to avoid duplicating infrastructure configuration. For example: ```text terraform/ ├── modules/ │ ├── networking/ │ ├── virtual-machine/ │ ├── monitoring/ │ └── aks/ │ ├── environments/ │ ├── dev/ │ └── staging/ │ └── main.tf ``` Modules make it possible to reuse common infrastructure patterns while allowing environment-specific configuration. --- ## Kubernetes Integration The infrastructure can optionally include Azure Kubernetes Service (AKS). AKS provides a managed Kubernetes environment for deploying containerized appl"
+  },
+  {
+    "id": "516c463a691f6430",
+    "title": "azure-devops-guide - chunk 7",
+    "source": "azure-devops-guide.md",
+    "text": "rnetes Service (AKS). AKS provides a managed Kubernetes environment for deploying containerized applications. A typical architecture is: ```text Azure DevOps | v Terraform | v Azure Kubernetes Service | +---- Node Pool | +---- Kubernetes Services | +---- Application Pods ``` Terraform can provision the AKS infrastructure while Kubernetes manifests or Helm charts can manage workloads deployed to the cluster. --- ## Security Considerations Infrastructure pipelines should follow security best practices. Important controls include: 1. Store secrets outside source control. 2. Use least-privilege permissions for service principals. 3. Restrict network access using Network Security Groups. 4. Enable encryption for sensitive resources. 5. Use Azure Key Vault for secret management. 6. Enable monitoring and logging. 7. Review Terraform plans before applying changes. 8. Protect the main branch. 9. "
+  },
+  {
+    "id": "60b662c1c4bf8112",
+    "title": "azure-devops-guide - chunk 8",
+    "source": "azure-devops-guide.md",
+    "text": "ring and logging. 7. Review Terraform plans before applying changes. 8. Protect the main branch. 9. Require pull-request reviews for infrastructure changes. 10. Separate development, staging, and production environments. --- ## Monitoring Azure monitoring services can be integrated into the infrastructure. Common monitoring components include: * Azure Monitor * Log Analytics * Application Insights * Microsoft Defender for Cloud Logs and metrics can be collected centrally to help identify infrastructure failures and security issues. --- ## Disaster Recovery Infrastructure deployments should consider backup and recovery requirements. Important considerations include: * Resource redundancy * Backup policies * Recovery point objectives (RPO) * Recovery time objectives (RTO) * Geographic redundancy * Infrastructure recreation using Terraform Infrastructure as Code can simplify disaster recove"
+  },
+  {
+    "id": "47b4c18568f1ea7b",
+    "title": "azure-devops-guide - chunk 9",
+    "source": "azure-devops-guide.md",
+    "text": "ancy * Infrastructure recreation using Terraform Infrastructure as Code can simplify disaster recovery because the infrastructure configuration is stored as version-controlled code. --- ## Common Troubleshooting Scenarios ### Terraform State Lock If Terraform reports a state lock problem, check whether another Terraform process is currently running. Do not remove a state lock blindly because another deployment may still be modifying infrastructure. --- ### Authentication Failure If Terraform cannot authenticate with Azure, verify: * Service principal credentials * Subscription ID * Tenant ID * Required Azure permissions * Azure DevOps service connection configuration --- ### Pipeline Failure When a pipeline fails, inspect the failed stage and review the Terraform command output. Typical commands that can help during local troubleshooting include: ```bash terraform init terraform validate"
+  },
+  {
+    "id": "358f9f2f94f2df0a",
+    "title": "azure-devops-guide - chunk 10",
+    "source": "azure-devops-guide.md",
+    "text": "mmands that can help during local troubleshooting include: ```bash terraform init terraform validate terraform plan ``` --- ## Recommended Workflow A safe infrastructure deployment workflow is: 1. Create a feature branch. 2. Modify Terraform configuration. 3. Run `terraform fmt`. 4. Run `terraform validate`. 5. Commit the changes. 6. Create a pull request. 7. Review the Terraform plan. 8. Merge the approved changes. 9. Run the deployment pipeline. 10. Verify the Azure resources. 11. Monitor the deployed infrastructure. --- ## Key Technologies The example project uses: * Microsoft Azure * Azure DevOps * Terraform * Git * Git-based CI/CD * Azure Key Vault * Azure Storage * Azure Kubernetes Service * Azure Monitor * Log Analytics * Microsoft Defender for Cloud --- ## Summary Combining Terraform with Azure DevOps provides an automated approach for managing Azure infrastructure. Remote Terraf"
+  },
+  {
+    "id": "4a51830fa7ffc3b3",
+    "title": "azure-devops-guide - chunk 11",
+    "source": "azure-devops-guide.md",
+    "text": "rm with Azure DevOps provides an automated approach for managing Azure infrastructure. Remote Terraform state allows multiple deployment processes to work with centralized state, while CI/CD pipelines provide validation, planning, approval, and deployment stages. Separating development and staging environments helps reduce deployment risk and keeps infrastructure changes isolated. Security controls such as least-privilege access, secret management, network restrictions, and approval gates should be incorporated into the deployment workflow."
+  },
+  {
+    "id": "d74ca47faacdd0f1",
+    "title": "cv - chunk 1",
+    "source": "cv.md",
+    "text": "# P.T. Rashmika Dilmin ## Professional Profile Recent Computer Science graduate from the University of Colombo School of Computing (UCSC), focused on DevOps, cloud infrastructure, automation, cloud security, and reliable systems. Experienced with Microsoft Azure, Linux, Terraform, Docker, Kubernetes fundamentals, Azure DevOps, GitHub Actions, networking, identity and access management, monitoring, and security. Interested in opportunities such as DevOps Engineer, Intern DevOps Engineer, Cloud Engineer, System Engineer, Cloud Infrastructure Engineer, and Cloud Security Engineer. --- ## Education ### Bachelor of Science in Computer Science **University of Colombo School of Computing (UCSC)** May 2023 – May 2026 * GPA: 3.11 * Second Class Lower Division ### Diploma in Information Technology **Esoft Metro Campus** 2022 – 2023 * Merit Pass --- ## Professional Experience ### Trainee Cloud Secu"
+  },
+  {
+    "id": "21b6be2378f67c03",
+    "title": "cv - chunk 2",
+    "source": "cv.md",
+    "text": "*Esoft Metro Campus** 2022 – 2023 * Merit Pass --- ## Professional Experience ### Trainee Cloud Security Engineer **ITX360** November 2025 – June 2026 Worked with cloud infrastructure, security, networking, monitoring, and automation technologies in Microsoft Azure environments. Key areas of experience included: * Microsoft Azure infrastructure * Azure Virtual Machines * Virtual Networks and Subnets * Network Security Groups * Azure Resource Groups * Azure Active Directory / Microsoft Entra ID * Azure AD Connect * Identity and Access Management * Domain Controllers * Azure Virtual Desktop * FSLogix * Azure Monitor * Log Analytics * Microsoft Sentinel * Microsoft Defender for Cloud * Microsoft Defender for Endpoint * Terraform * Docker * Kubernetes fundamentals * Azure DevOps * GitHub Actions * Linux administration * Networking and troubleshooting --- ## Cloud Infrastructure Experience Wo"
+  },
+  {
+    "id": "95d7aa9722acc9e0",
+    "title": "cv - chunk 3",
+    "source": "cv.md",
+    "text": "ns * Linux administration * Networking and troubleshooting --- ## Cloud Infrastructure Experience Worked with Azure infrastructure components including: * Virtual Machines * Virtual Networks * Subnets * Network Security Groups * Private Endpoints * Azure Resource Groups * Azure Storage * Azure Key Vault * Azure Virtual Desktop * Recovery Services Vault * Azure Front Door * Application Gateway * Azure Monitor * Log Analytics --- ## Azure Virtual Desktop Worked with Azure Virtual Desktop environments and related components including: * Host Pools * Session Hosts * Application Groups * Workspaces * Golden Images * FSLogix * Scaling Plans * Multi-session environments * Microsoft Entra ID integration * MFA * Single Sign-On * Private Endpoints * Azure Monitor Investigated Azure Virtual Desktop issues using Log Analytics and KQL queries against tables such as WVDConnections, WVDCheckpoints, and"
+  },
+  {
+    "id": "27dff9837c78828d",
+    "title": "cv - chunk 4",
+    "source": "cv.md",
+    "text": "ssues using Log Analytics and KQL queries against tables such as WVDConnections, WVDCheckpoints, and WVDErrors. --- ## Networking and Security Experience with cloud and enterprise networking concepts including: * Virtual Networks * Subnets * Network Security Groups * Azure Firewall concepts * VPN connectivity * Point-to-Site VPN * Site-to-Site VPN concepts * IKEv2 * OpenVPN * Network peering * DNS * Private Endpoints * Domain joining * Identity and access management Worked with security technologies including: * Microsoft Defender for Cloud * Microsoft Defender for Endpoint * Microsoft Sentinel * Microsoft Entra ID * Role-Based Access Control * Security monitoring * Security alerts and incidents --- ## Monitoring and Security Analytics Worked with Azure monitoring and security analytics technologies including: * Azure Monitor * Log Analytics * KQL * Microsoft Sentinel * Microsoft Defende"
+  },
+  {
+    "id": "d6fa4f0b710c81b3",
+    "title": "cv - chunk 5",
+    "source": "cv.md",
+    "text": "chnologies including: * Azure Monitor * Log Analytics * KQL * Microsoft Sentinel * Microsoft Defender for Cloud * Grafana * UEBA concepts * Security alerts * Incident investigation * Anomaly detection Worked on a UEBA dashboard using Log Analytics, KQL, Microsoft Sentinel, and AnalitiQ360. --- ## Infrastructure as Code Experience with Terraform for provisioning and managing cloud infrastructure. Worked with: * Terraform modules * Azure resources * Remote Terraform state * Azure Storage backends * Environment-specific infrastructure * Terraform variables * Infrastructure automation * Terraform validation and planning Used separate development and staging environments for infrastructure deployment. --- ## CI/CD Experience with Git-based CI/CD approaches using: * Azure DevOps * Azure DevOps Pipelines * GitHub Actions * Jenkins * Git * GitHub Worked with automated workflows for: * Code valid"
+  },
+  {
+    "id": "5541c63d7165169c",
+    "title": "cv - chunk 6",
+    "source": "cv.md",
+    "text": "ipelines * GitHub Actions * Jenkins * Git * GitHub Worked with automated workflows for: * Code validation * Terraform validation * Infrastructure planning * Infrastructure deployment * Docker image builds * Application deployment --- ## Containers and Kubernetes Experience with: * Docker * Docker Compose * Docker images * Docker containers * Container registries * Azure Container Registry * Kubernetes fundamentals * AKS * Minikube Kubernetes experience includes basic cluster management, deployments, services, pods, and containerized application workloads. --- ## Linux and System Administration Experience with Linux and Windows system administration, troubleshooting, and infrastructure management. Technical areas include: * Linux administration * Windows administration * Bash * PowerShell * Networking * System troubleshooting * Virtual machines * Services and processes * File permissions "
+  },
+  {
+    "id": "060f073df3fa7045",
+    "title": "cv - chunk 7",
+    "source": "cv.md",
+    "text": " Networking * System troubleshooting * Virtual machines * Services and processes * File permissions * SSH * Passwordless SSH configuration * Monitoring --- ## Certifications ### Microsoft Certified: Azure Administrator Associate **AZ-104** Covers Azure administration, identity, storage, compute, networking, monitoring, and resource management. ### Microsoft Certified: Azure Network Engineer Associate **AZ-700** Covers Azure networking, virtual networks, routing, security, connectivity, and network infrastructure. ### Microsoft Certified: DevOps Engineer Expert **AZ-400** Covers DevOps processes, source control, CI/CD, infrastructure as code, security, monitoring, and delivery automation. ### Certified Kubernetes Administrator **CKA** Covers Kubernetes cluster administration, workloads, networking, storage, security, and troubleshooting. --- # Projects ## NexusRAG **Technologies:** RAG, F"
+  },
+  {
+    "id": "7b746ac3ac563811",
+    "title": "cv - chunk 8",
+    "source": "cv.md",
+    "text": "working, storage, security, and troubleshooting. --- # Projects ## NexusRAG **Technologies:** RAG, FastAPI, React, Python, Qdrant, Ollama Developing a RAG-based document Q&A platform that processes documents into embeddings, performs semantic retrieval using Qdrant, and generates grounded responses using Ollama. The platform includes: * Document ingestion * Document processing * Embedding generation * Semantic search * Vector storage * Qdrant * FastAPI * React * Ollama * Retrieval evaluation * API monitoring * Containerized services The architecture separates the API, embedding service, frontend, ingestion pipeline, and vector database. --- ## Global Event Intelligence Platform **Technologies:** React, TypeScript, FastAPI, Ollama, SQLite Developing an AI-powered global event intelligence platform that collects information from news sources, processes incoming articles, removes duplicate "
+  },
+  {
+    "id": "5170fbd902692fc7",
+    "title": "cv - chunk 9",
+    "source": "cv.md",
+    "text": "latform that collects information from news sources, processes incoming articles, removes duplicate content, classifies events, extracts geographic information, and assigns importance and confidence scores. The platform uses a FastAPI backend and a React frontend. --- ## Azure Virtual Desktop with Hub-and-Spoke Architecture **Technologies:** Azure, OpenVPN, FSLogix Designed and deployed an Azure Virtual Desktop environment using a hub-and-spoke network architecture. The project included: * Azure Virtual Desktop * Host pools * Session hosts * FSLogix * Hub-and-spoke networking * OpenVPN * Private networking * Identity integration * Monitoring --- ## Azure Security Assessment **Technologies:** Azure, Microsoft Defender for Cloud, Elastic Stack Performed an Azure security assessment focusing on cloud security configuration and infrastructure hardening. Activities included: * Microsoft Defen"
+  },
+  {
+    "id": "7a3d55d2f3fe08cb",
+    "title": "cv - chunk 10",
+    "source": "cv.md",
+    "text": "on cloud security configuration and infrastructure hardening. Activities included: * Microsoft Defender for Cloud * RBAC * Network Security Groups * Encryption at Host * Private Endpoints * Security configuration review * Security monitoring Improved the assessed Azure security posture through infrastructure hardening and security configuration changes. --- ## High Availability Web Cluster **Technologies:** Apache Tomcat, Keepalived, MySQL, SQLite, Linux Designed a high-availability web cluster using Apache Tomcat and Keepalived. The project included: * Multiple application servers * Load balancing and failover * Keepalived * Apache Tomcat * MySQL * SQLite * Linux * High availability concepts The architecture was designed to improve application availability and provide failover capabilities. --- ## Multi-Environment Infrastructure Automation **Technologies:** Azure, Terraform, Azure DevO"
+  },
+  {
+    "id": "6d98f51d25101eda",
+    "title": "cv - chunk 11",
+    "source": "cv.md",
+    "text": "s. --- ## Multi-Environment Infrastructure Automation **Technologies:** Azure, Terraform, Azure DevOps, Git Implemented Infrastructure as Code for Azure infrastructure using Terraform and Azure DevOps. The project included: * Terraform * Azure infrastructure * Development environment * Staging environment * Reusable Terraform modules * Remote Terraform state * Azure DevOps pipelines * Git-based CI/CD * Automated infrastructure provisioning --- ## Linux Device Drivers and Kernel Modules **Technologies:** C, Linux Kernel Developed Linux kernel modules and device-driver related functionality using C. The project involved: * C programming * Linux Kernel * Kernel modules * Pointers * Threads * Low-level programming * Operating system concepts --- # Technical Skills ## Cloud * Microsoft Azure * Azure Virtual Machines * Azure Virtual Networks * Azure Virtual Desktop * Azure Storage * Azure Key "
+  },
+  {
+    "id": "f416db09e2ce39a2",
+    "title": "cv - chunk 12",
+    "source": "cv.md",
+    "text": "Azure Virtual Machines * Azure Virtual Networks * Azure Virtual Desktop * Azure Storage * Azure Key Vault * Azure Monitor * Azure Kubernetes Service * Microsoft Entra ID ## DevOps * Azure DevOps * Azure Pipelines * GitHub Actions * Jenkins * Terraform * Docker * Docker Compose * Kubernetes * Ansible * Git * GitHub ## Security * Microsoft Defender for Cloud * Microsoft Defender for Endpoint * Microsoft Sentinel * Microsoft Entra ID * RBAC * Network Security Groups * Private Endpoints * Cloud security * Identity and access management ## Monitoring * Azure Monitor * Log Analytics * KQL * Grafana * Microsoft Sentinel * UEBA ## Operating Systems * Linux * Windows * Linux administration * Bash * PowerShell ## Programming * Python * JavaScript * TypeScript * C * Java * SQL ## Web Development * React * Node.js * Express.js * HTML * CSS * REST APIs * MERN stack ## Databases * MongoDB * MySQL * SQ"
+  },
+  {
+    "id": "e666772caa1798d7",
+    "title": "cv - chunk 13",
+    "source": "cv.md",
+    "text": "act * Node.js * Express.js * HTML * CSS * REST APIs * MERN stack ## Databases * MongoDB * MySQL * SQLite --- # DevOps and Cloud Focus The main technical focus is DevOps and cloud infrastructure, with practical experience in: * Infrastructure as Code * Cloud infrastructure * CI/CD automation * Containerization * Kubernetes * Linux * Azure networking * Cloud security * Monitoring * Infrastructure automation * Git-based development workflows * Reliability and troubleshooting --- # Career Interests Interested in roles involving: * DevOps Engineering * Cloud Engineering * Cloud Infrastructure * Cloud Security * System Engineering * Site Reliability Engineering * Infrastructure Automation * Platform Engineering * Network and Security Engineering * System Administration"
+  },
+  {
+    "id": "ac59ccc50a028d80",
+    "title": "example - chunk 1",
+    "source": "example.md",
+    "text": "# Example document RAG combines retrieval with language generation. A retriever searches an external knowledge base and supplies relevant context to a language model. This makes the generated answer more grounded in the indexed corpus."
   }
 ]

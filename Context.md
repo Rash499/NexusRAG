@@ -24,3 +24,24 @@ Invoke-WebRequest -Method Post http://localhost:8000/api/v1/ingest
 ```
 
 After that, the new documents become searchable.
+
+
+
+
+Documents
+   ↓
+build_corpus.py
+   ↓
+corpus.json
+   ↓
+FastAPI /ingest
+   ↓
+Embedding Service
+   ↓
+Qdrant
+   ↓
+Semantic Retrieval
+   ↓
+Ollama
+   ↓
+Grounded Answer + Sources
