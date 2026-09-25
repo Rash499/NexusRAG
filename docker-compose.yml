@@ -22,7 +22,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data:/app/data
+      # api/data holds corpus.json, the file written by ingestion/build_corpus.py
+      # and read by POST /api/v1/ingest.
+      - ./api/data:/app/data
     depends_on:
       - qdrant
       - embedding
@@ -32,11 +34,12 @@ services:
     build: ./embedding-service
     container_name: rag-embedding
     environment:
+      # 384-dim ONNX build of all-MiniLM-L6-v2, served in-process by
+      # fastembed (ONNX Runtime) - no torch/transformers. The weights are
+      # baked into the image at /opt/fastembed during the build.
       EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
     ports:
       - "8001:8001"
-    volumes:
-      - embedding-cache:/root/.cache
 
   qdrant:
     image: qdrant/qdrant:v1.15.5
@@ -58,4 +61,3 @@ services:
 volumes:
   qdrant-data:
   ollama-data:
-  embedding-cache:
