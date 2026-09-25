@@ -4,7 +4,7 @@ A modular, DevOps-first Retrieval-Augmented Generation (RAG) platform with full 
 
 - **React + Vite Frontend (v2.0)**: Modern knowledge console with tabbed interface, direct document insertion, parameter adjustment (top_k, min_similarity, token streaming), clipboard export, and real-time backend cluster health badges.
 - **FastAPI Modular API (v2.0)**: Clean layered architecture separated into distinct domain packages (`clients`, `rag`, `routes`).
-- **Sentence-Transformers Embedding Service**: Dedicated microservice for fast vector representations.
+- **FastEmbed Embedding Service**: Dedicated microservice running `all-MiniLM-L6-v2` on ONNX Runtime (384-dim, no PyTorch/sentence-transformers dependency).
 - **Qdrant Vector Database**: Production-grade vector storage with automatic collection provisioning and cosine semantic search.
 - **Ollama LLM Engine**: Local grounded generation with citation matching (`[Source N]`).
 - **Prometheus Metrics**: Built-in latency histograms (retrieval, LLM inference, total pipeline), similarity tracking, and query counters.
