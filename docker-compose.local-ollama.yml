@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      LLM_BASE_URL: http://host.docker.internal:11434
+    depends_on: !override
+      qdrant:
+        condition: service_started
+      embedding:
+        condition: service_started

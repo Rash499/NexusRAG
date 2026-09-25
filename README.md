@@ -1,94 +1,98 @@
-# Production RAG Platform
+# NexusRAG: Enterprise Production RAG Platform (v2.0)
 
-A DevOps-first Retrieval-Augmented Generation platform built with:
+A modular, DevOps-first Retrieval-Augmented Generation (RAG) platform with full observability, real-time telemetry, dynamic ingestion, and token-streaming support:
 
-- React + Vite frontend
-- FastAPI API
-- Separate sentence-transformers embedding service
-- Qdrant vector database
-- Ollama LLM
-- Docker Compose for local development
-- RAG evaluation in CI
-- Terraform for Azure infrastructure
-- Kubernetes manifests for AKS
-- GitHub Actions CI/CD
-- Prometheus metrics + Azure Monitor/Log Analytics integration points
+- **React + Vite Frontend (v2.0)**: Modern knowledge console with tabbed interface, direct document insertion, parameter adjustment (top_k, min_similarity, token streaming), clipboard export, and real-time backend cluster health badges.
+- **FastAPI Modular API (v2.0)**: Clean layered architecture separated into distinct domain packages (`clients`, `rag`, `routes`).
+- **Sentence-Transformers Embedding Service**: Dedicated microservice for fast vector representations.
+- **Qdrant Vector Database**: Production-grade vector storage with automatic collection provisioning and cosine semantic search.
+- **Ollama LLM Engine**: Local grounded generation with citation matching (`[Source N]`).
+- **Prometheus Metrics**: Built-in latency histograms (retrieval, LLM inference, total pipeline), similarity tracking, and query counters.
+- **Docker Compose**: Containerized multi-service development setup.
+
+---
 
 ## Architecture
 
 ```text
-React
-  |
-  v
-FastAPI API ----> Ollama
-  |
-  +----> Embedding Service ----> Qdrant
-  |
-  +----> Prometheus metrics
+React (Vite Console)
+  │
+  ├───► FastAPI Modular API ──────► Ollama (llama3.2:3b)
+  │       ├── routes (ingest, query, system)
+  │       ├── rag (retriever, indexer, pipeline, prompt)
+  │       └── clients (qdrant, embedding, ollama)
+  │               │
+  │               ├───► Embedding Service (all-MiniLM-L6-v2)
+  │               └───► Qdrant Vector Store
+  │
+  └───────► Prometheus Metrics (/metrics)
 ```
 
-## Quick start
+---
 
-Requirements:
+## New Features & Enhancements in v2.0
 
+### 1. Codebase Separation & Modular Architecture
+- **Decomposed Large Files**: Separated monolithic `services.py` and `main.py` into dedicated, single-responsibility modules:
+  - `api/app/clients/`: `embedding_client.py`, `ollama_client.py`, `qdrant_client_wrapper.py`.
+  - `api/app/rag/`: `indexer.py`, `retriever.py`, `pipeline.py`, `prompt_builder.py`.
+  - `api/app/routes/`: `ingest.py`, `query.py`, `system.py`.
+- Full backwards-compatibility preserved for test runners and evaluation pipelines.
+
+### 2. Frontend Enhancements
+- **Dynamic Document Ingestion UI**: Ingest markdown or technical guides straight from the browser into Qdrant without restarting or manual corpus editing.
+- **Live Infrastructure Diagnostics**: View real-time cluster status, vector counts, and connection health for Qdrant, Embedding Service, and Ollama.
+- **Advanced Parameters Panel**: Customize Top-K chunk retrieval and similarity cutoff thresholds dynamically per query.
+- **Token Streaming Support**: Stream response tokens directly for real-time interactive generation.
+- **Recent Queries & Search History**: Save and recall prompt queries with 1 click.
+- **Copy Answer & Evidence Filter**: One-click markdown copy and client-side filtering through retrieved context chunks.
+
+### 3. Backend Enhancements
+- **Dynamic Ingest Endpoint**: `POST /api/v1/ingest/direct` to vector-embed arbitrary documents on demand.
+- **Cluster Diagnostics Endpoints**: `GET /api/v1/status` and `GET /api/v1/stats`.
+- **Streaming Query Endpoint**: `POST /api/v1/query/stream` supporting chunked response streaming.
+
+---
+
+## Quick Start
+
+### Requirements:
 - Docker Desktop
-- Git
 - At least 8 GB RAM recommended
-- Ollama model access is easiest through the included Ollama container
 
 ```bash
+# Clone the repository
 git clone <your-repository-url>
-cd production-rag-platform
+cd NexusRAG
+
+# Launch all microservices
 docker compose up -d --build
 ```
 
-Pull the default model:
-
+Pull the LLM model (first time only):
 ```bash
 docker compose exec ollama ollama pull llama3.2:3b
 ```
 
-Open:
+Open in your browser:
+- **Frontend Console**: [http://localhost:3000](http://localhost:3000)
+- **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Qdrant Vector Dashboard**: [http://localhost:6333/dashboard](http://localhost:6333/dashboard)
+- **Prometheus Metrics**: [http://localhost:8000/metrics](http://localhost:8000/metrics)
 
-- Frontend: http://localhost:3000
-- API docs: http://localhost:8000/docs
-- Qdrant: http://localhost:6333/dashboard
-- Metrics: http://localhost:8000/metrics
+---
 
-## Index the sample corpus
+## Running Automated Tests
 
+### Backend Tests (Pytest)
 ```bash
-curl -X POST http://localhost:8000/api/v1/ingest
+cd api
+pytest
 ```
 
-Then ask questions from the web UI.
-
-## Run tests
-
+### Frontend Tests (Vitest)
 ```bash
-docker compose run --rm api pytest
-docker compose run --rm embedding pytest
+cd frontend
+npm test
 ```
 
-## Run evaluation
-
-```bash
-docker compose run --rm api python -m app.evaluation.run_eval
-```
-
-## Project phases
-
-1. Local RAG
-2. Docker Compose
-3. RAG evaluation
-4. CI/CD
-5. Terraform
-6. AKS
-7. Monitoring
-8. Security hardening
-
-## Important production notes
-
-The included Azure/Terraform and Kubernetes configurations are a production-oriented baseline, not a claim that every cloud security setting is complete for every environment. Before production use, review network ranges, identities, ingress certificates, storage classes, secrets, resource sizing, backup/restore, image signing, and organizational Azure policies.
-
-Ollama is included for local development. For an AKS deployment, consider a managed LLM endpoint or a dedicated GPU-backed inference workload instead of placing a CPU-only Ollama container in a small general-purpose cluster.
