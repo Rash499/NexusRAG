@@ -1,28 +1,32 @@
+import logging
 from contextlib import asynccontextmanager
-from pathlib import Path
-import json
-
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import make_asgi_app
 
 from .config import settings
-from .schemas import IngestResponse, QueryRequest, QueryResponse
-from .services import index_documents, answer_question
+from .routes.ingest import router as ingest_router
+from .routes.query import router as query_router
+from .routes.system import router as system_router
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("Starting NexusRAG API service...")
     yield
-
+    logger.info("Shutting down NexusRAG API service...")
 
 app = FastAPI(
-    title="Production RAG API",
-    version="1.0.0",
-    description="DevOps-first Retrieval-Augmented Generation API",
+    title="NexusRAG API",
+    version="2.0.0",
+    description="High-performance DevOps-first Retrieval-Augmented Generation API with Modular Services",
     lifespan=lifespan,
 )
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,67 +40,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Mount Prometheus metrics
 app.mount("/metrics", make_asgi_app())
 
+# Mount decomposed API routers
+app.include_router(ingest_router)
+app.include_router(query_router)
+app.include_router(system_router)
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy"}
-
-
-@app.post("/api/v1/ingest", response_model=IngestResponse)
-async def ingest():
-    # Works when FastAPI is running directly from the Windows project
-    # and also works when the project is mounted inside a container.
-    corpus_path = Path(__file__).resolve().parent.parent / "data" / "corpus.json"
-
-    if not corpus_path.exists():
-        raise HTTPException(
-            status_code=404,
-            detail=f"Corpus not found: {corpus_path}",
-        )
-
-    try:
-        documents = json.loads(
-            corpus_path.read_text(encoding="utf-8")
-        )
-    except json.JSONDecodeError as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Invalid corpus JSON: {exc}",
-        ) from exc
-
-    if not isinstance(documents, list):
-        raise HTTPException(
-            status_code=500,
-            detail="corpus.json must contain a JSON array",
-        )
-
-    try:
-        count = await index_documents(documents)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Document indexing failed: {exc}",
-        ) from exc
-
     return {
-        "indexed": count,
-        "collection": settings.qdrant_collection,
-        "message": "Documents indexed successfully",
+        "status": "healthy",
+        "service": "NexusRAG API",
+        "version": "2.0.0",
     }
-
-
-@app.post("/api/v1/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
-    try:
-        return await answer_question(
-            request.question,
-            request.top_k,
-        )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=str(exc),
-        ) from exc
